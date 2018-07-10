@@ -23,7 +23,12 @@ class ViewController: UIViewController, CropViewControllerDelegate, UIImagePicke
         
         let cropController = CropViewController(croppingStyle: croppingStyle, image: image)
         cropController.delegate = self
-        
+
+        if croppingStyle != .circular {
+            cropController.aspectRatioLockEnabled = true
+            cropController.customAspectRatio = CGSize(width: 2, height: 1)
+        }
+
         // Uncomment this if you wish to provide extra instructions via a title label
         //cropController.title = "Crop Image"
     

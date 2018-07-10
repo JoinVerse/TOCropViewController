@@ -1505,31 +1505,23 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
     //Work out how much we'll need to scale everything to fit to the new rotation
     CGRect contentBounds = self.contentBounds;
     CGRect cropBoxFrame = self.cropBoxFrame;
-    CGFloat scale = MIN(contentBounds.size.width / cropBoxFrame.size.height, contentBounds.size.height / cropBoxFrame.size.width);
+    CGFloat scale = 1;
     
     //Work out which section of the image we're currently focusing at
     CGPoint cropMidPoint = (CGPoint){CGRectGetMidX(cropBoxFrame), CGRectGetMidY(cropBoxFrame)};
     CGPoint cropTargetPoint = (CGPoint){cropMidPoint.x + self.scrollView.contentOffset.x, cropMidPoint.y + self.scrollView.contentOffset.y};
     
     //Work out the dimensions of the crop box when rotated
-    CGRect newCropFrame = CGRectZero;
     if (labs(self.angle) == labs(self.cropBoxLastEditedAngle) || (labs(self.angle)*-1) == ((labs(self.cropBoxLastEditedAngle) - 180) % 360)) {
-        newCropFrame.size = self.cropBoxLastEditedSize;
-        
         self.scrollView.minimumZoomScale = self.cropBoxLastEditedMinZoomScale;
         self.scrollView.zoomScale = self.cropBoxLastEditedZoomScale;
     }
     else {
-        newCropFrame.size = (CGSize){floorf(self.cropBoxFrame.size.height * scale), floorf(self.cropBoxFrame.size.width * scale)};
-        
         //Re-adjust the scrolling dimensions of the scroll view to match the new size
         self.scrollView.minimumZoomScale *= scale;
         self.scrollView.zoomScale *= scale;
     }
-    
-    newCropFrame.origin.x = floorf(CGRectGetMidX(contentBounds) - (newCropFrame.size.width * 0.5f));
-    newCropFrame.origin.y = floorf(CGRectGetMidY(contentBounds) - (newCropFrame.size.height * 0.5f));
-    
+
     //If we're animated, generate a snapshot view that we'll animate in place of the real view
     UIView *snapshotView = nil;
     if (animated) {
@@ -1553,10 +1545,8 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
     self.scrollView.contentSize = self.backgroundContainerView.frame.size;
     
     //assign the new crop box frame and re-adjust the content to fill it
-    self.cropBoxFrame = newCropFrame;
     [self moveCroppedContentToCenterAnimated:NO];
-    newCropFrame = self.cropBoxFrame;
-    
+
     //work out how to line up out point of interest into the middle of the crop box
     cropTargetPoint.x *= scale;
     cropTargetPoint.y *= scale;
@@ -1572,14 +1562,14 @@ typedef NS_ENUM(NSInteger, TOCropViewOverlayEdge) {
     }
     
     //reapply the translated scroll offset to the scroll view
-    CGPoint midPoint = {CGRectGetMidX(newCropFrame), CGRectGetMidY(newCropFrame)};
+    CGPoint midPoint = {CGRectGetMidX(cropBoxFrame), CGRectGetMidY(cropBoxFrame)};
     CGPoint offset = CGPointZero;
     offset.x = floorf(-midPoint.x + cropTargetPoint.x);
     offset.y = floorf(-midPoint.y + cropTargetPoint.y);
     offset.x = MAX(-self.scrollView.contentInset.left, offset.x);
     offset.y = MAX(-self.scrollView.contentInset.top, offset.y);
-    offset.x = MIN(self.scrollView.contentSize.width - (newCropFrame.size.width - self.scrollView.contentInset.right), offset.x);
-    offset.y = MIN(self.scrollView.contentSize.height - (newCropFrame.size.height - self.scrollView.contentInset.bottom), offset.y);
+    offset.x = MIN(self.scrollView.contentSize.width - (cropBoxFrame.size.width - self.scrollView.contentInset.right), offset.x);
+    offset.y = MIN(self.scrollView.contentSize.height - (cropBoxFrame.size.height - self.scrollView.contentInset.bottom), offset.y);
     
     //if the scroll view's new scale is 1 and the new offset is equal to the old, will not trigger the delegate 'scrollViewDidScroll:'
     //so we should call the method manually to update the foregroundImageView's frame
