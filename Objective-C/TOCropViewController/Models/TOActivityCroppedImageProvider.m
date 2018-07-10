@@ -68,7 +68,7 @@
         return self.croppedImage;
     }
     
-    UIImage *image = [self.image croppedImageWithFrame:self.cropFrame angle:self.angle circularClip:self.circular];
+    UIImage *image = [self.image croppedImageWithFrame:self.cropFrame angle:self.angle circularClip:NO];
     self.croppedImage = image;
     return self.croppedImage;
 }
