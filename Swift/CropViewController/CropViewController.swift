@@ -267,7 +267,7 @@ public class CropViewController: UIViewController, TOCropViewControllerDelegate 
      If `showActivitySheetOnDone` is true, then you may expliclty
      set activities that won't appear in the share sheet here.
      */
-    public var excludedActivityTypes: [UIActivityType]? {
+    public var excludedActivityTypes: [UIActivity.ActivityType]? {
         set { toCropViewController.excludedActivityTypes = newValue }
         get { return toCropViewController.excludedActivityTypes }
     }
@@ -362,7 +362,7 @@ public class CropViewController: UIViewController, TOCropViewControllerDelegate 
      Forward status bar status style changes to the crop view controller
      :nodoc:
      */
-    public override var childViewControllerForStatusBarStyle: UIViewController? {
+    public override var childForStatusBarStyle: UIViewController? {
         return toCropViewController
     }
     
@@ -370,7 +370,7 @@ public class CropViewController: UIViewController, TOCropViewControllerDelegate 
      Forward status bar status visibility changes to the crop view controller
      :nodoc:
      */
-    public override var childViewControllerForStatusBarHidden: UIViewController? {
+    public override var childForStatusBarHidden: UIViewController? {
         return toCropViewController
     }
     
@@ -428,9 +428,9 @@ public class CropViewController: UIViewController, TOCropViewControllerDelegate 
         toCropViewController.viewDidLayoutSubviews()
     }
     
-    override public func preferredScreenEdgesDeferringSystemGestures() -> UIRectEdge {
+    override public var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
         if #available(iOS 11.0, *) {
-            return toCropViewController.preferredScreenEdgesDeferringSystemGestures()
+            return toCropViewController.preferredScreenEdgesDeferringSystemGestures
         }
         
         return UIRectEdge.all
@@ -534,10 +534,10 @@ public class CropViewController: UIViewController, TOCropViewControllerDelegate 
 
 extension CropViewController {
     fileprivate func setUpCropController() {
-        addChildViewController(toCropViewController)
+        addChild(toCropViewController)
         transitioningDelegate = (toCropViewController as! UIViewControllerTransitioningDelegate)
         toCropViewController.delegate = self
-        toCropViewController.didMove(toParentViewController: self)
+        toCropViewController.didMove(toParent: self)
     }
     
     fileprivate func setUpDelegateHandlers() {
